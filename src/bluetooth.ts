@@ -40,7 +40,6 @@ export async function requestAndConnect(onNotify: NotifyCallback) {
 
 export async function writeCommand(cmd: string) {
   if (!charGlobal) throw new Error("Not connected");
-  // write as UTF-8 string
   const data = new TextEncoder().encode(cmd);
   await charGlobal.writeValue(data);
 }
