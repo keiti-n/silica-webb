@@ -170,8 +170,8 @@ export default function App() {
             />
           </svg>
           <div>
-            <div className="appname">Silica Monitor</div>
-            <div className="subtitle">Friendly silica humidity monitor</div>
+            <div className="appname">SilicaSense</div>
+            <div className="subtitle">Silica humidity monitor</div>
           </div>
         </div>
 
