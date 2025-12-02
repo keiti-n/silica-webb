@@ -15,7 +15,9 @@ type Reading = { ts: number; moisture: string; temperature: number | null };
 
 export default function App() {
   // UI state
-  const [theme, setTheme] = useState<"light"|"dark">(() => localStorage.getItem("theme") as any || "light");
+  const [theme, setTheme] = useState<"light" | "dark">(
+    () => (localStorage.getItem("theme") as any) || "light"
+  );
   const [connected, setConnected] = useState(false);
   const [status, setStatus] = useState("idle");
   const [unitC, setUnitC] = useState(true);
@@ -42,7 +44,7 @@ export default function App() {
         const elapsed = Math.floor((now - lastTs) / 1000);
         setNextInSec(Math.max(0, interval - elapsed));
       }
-      tick(s => s + 1);
+      tick((s) => s + 1);
     }, 1000);
     return () => clearInterval(id);
   }, [lastTs, isRealtime]);
@@ -51,7 +53,9 @@ export default function App() {
   async function ensureNotification() {
     if (!("Notification" in window)) return;
     if (Notification.permission === "default") {
-      try { await Notification.requestPermission(); } catch {}
+      try {
+        await Notification.requestPermission();
+      } catch {}
     }
   }
 
@@ -61,14 +65,19 @@ export default function App() {
       new Notification("⚠️ Moisture Detected", { body });
     } else {
       // fallback: small alert if visible
-      if (document.visibilityState === "visible") alert("⚠️ Moisture Detected — " + body);
+      if (document.visibilityState === "visible")
+        alert("⚠️ Moisture Detected — " + body);
     }
   }
 
-  // Add reading to history (keeps last 60)
+  // Add reading to history (keeps last 120)
   function addReading(moisture: string, tempStr: string) {
     const temp = parseFloat(tempStr);
-    const reading: Reading = { ts: Date.now(), moisture, temperature: isNaN(temp) ? null : temp };
+    const reading: Reading = {
+      ts: Date.now(),
+      moisture,
+      temperature: isNaN(temp) ? null : temp,
+    };
     const arr = readingsRef.current;
     arr.push(reading);
     if (arr.length > 120) arr.shift();
@@ -123,20 +132,42 @@ export default function App() {
   }
 
   // derived UI values
-  const latest = readingsRef.current.length ? readingsRef.current[readingsRef.current.length - 1] : null;
-  const tempDisplay = latest && latest.temperature != null ? (unitC ? latest.temperature.toFixed(1) + "°C" : toF(latest.temperature).toFixed(1) + "°F") : "--";
+  const latest = readingsRef.current.length
+    ? readingsRef.current[readingsRef.current.length - 1]
+    : null;
+  const tempDisplay =
+    latest && latest.temperature != null
+      ? unitC
+        ? latest.temperature.toFixed(1) + "°C"
+        : toF(latest.temperature).toFixed(1) + "°F"
+      : "--";
   const moistureDisplay = latest ? latest.moisture : "--";
 
   // chart data
-  const tempPoints = readingsRef.current.map((r,i) => ({ t: r.ts, value: r.temperature != null ? r.temperature : (latest?.temperature ?? 0) }));
-  const moisturePoints = readingsRef.current.map(r => ({ t: r.ts, state: r.moisture }));
+  const tempPoints = readingsRef.current.map((r) => ({
+    t: r.ts,
+    value: r.temperature != null ? r.temperature : latest?.temperature ?? 0,
+  }));
+  const moisturePoints = readingsRef.current.map((r) => ({
+    t: r.ts,
+    state: r.moisture,
+  }));
 
   return (
     <div className="page">
       <header className="topbar">
         <div className="title">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M12 2C12 2 7 8 7 12a5 5 0 0010 0c0-4-5-10-5-10z" fill="currentColor"/>
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M12 2C12 2 7 8 7 12a5 5 0 0010 0c0-4-5-10-5-10z"
+              fill="currentColor"
+            />
           </svg>
           <div>
             <div className="appname">Silica Monitor</div>
@@ -146,39 +177,82 @@ export default function App() {
 
         <div className="top-controls">
           <div className={`status-dot ${connected ? "on" : "off"}`}></div>
-          <button className="icon-btn" onClick={() => setTheme(t => t === "light" ? "dark" : "light")}>
+          <button
+            className="icon-btn"
+            onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
+          >
             {theme === "light" ? "🌞" : "🌙"}
           </button>
-          <button className="icon-btn" onClick={() => setUnitC(c => !c)} title="Toggle °C/°F">{unitC ? "°C" : "°F"}</button>
+          <button
+            className="icon-btn"
+            onClick={() => setUnitC((c) => !c)}
+            title="Toggle °C/°F"
+          >
+            {unitC ? "°C" : "°F"}
+          </button>
         </div>
       </header>
 
       <main className="grid">
-        <section className="card big" onClick={toggleRealtime} role="button" title="Click to toggle realtime">
+        <section
+          className="card big"
+          onClick={toggleRealtime}
+          role="button"
+          title="Click to toggle realtime"
+        >
           <div className="card-top">
-            <div className="icon-droplet" aria-hidden>💧</div>
+            <div className="icon-droplet" aria-hidden>
+              💧
+            </div>
             <div>
               <div className="card-title">Moisture</div>
-              <div className="card-sub">Last checked: {lastTs ? clockTime(lastTs) : "--:--:--"}</div>
+              <div className="card-sub">
+                Last checked: {lastTs ? clockTime(lastTs) : "--:--:--"}
+              </div>
             </div>
           </div>
 
-          <div className="reading large" style={{color: moistureDisplay.toLowerCase() === "dry" ? "#FF8A3D" : moistureDisplay.toLowerCase() === "mixed" ? "#C6F16B" : "#37D6B8"}}>
+          <div
+            className="reading large"
+            style={{
+              color:
+                moistureDisplay.toLowerCase() === "dry"
+                  ? "#FF8A3D"
+                  : moistureDisplay.toLowerCase() === "mixed"
+                  ? "#C6F16B"
+                  : "#37D6B8",
+            }}
+          >
             {moistureDisplay}
           </div>
 
           <div className="small-row">
-            <div>Next update: <strong>{isRealtime ? "Realtime" : `${Math.floor(nextInSec/60)}:${String(nextInSec%60).padStart(2,"0")}`}</strong></div>
-            <div><small>Tap for realtime</small></div>
+            <div>
+              Next update:{" "}
+              <strong>
+                {isRealtime
+                  ? "Realtime"
+                  : `${Math.floor(nextInSec / 60)}:${String(
+                      nextInSec % 60
+                    ).padStart(2, "0")}`}
+              </strong>
+            </div>
+            <div>
+              <small>Tap for realtime</small>
+            </div>
           </div>
         </section>
 
         <section className="card">
           <div className="card-top">
-            <div className="icon-temp" aria-hidden>🌡️</div>
+            <div className="icon-temp" aria-hidden>
+              🌡️
+            </div>
             <div>
               <div className="card-title">Temperature</div>
-              <div className="card-sub">Last checked: {lastTs ? clockTime(lastTs) : "--:--:--"}</div>
+              <div className="card-sub">
+                Last checked: {lastTs ? clockTime(lastTs) : "--:--:--"}
+              </div>
             </div>
           </div>
 
@@ -186,41 +260,91 @@ export default function App() {
 
           <div className="small-row">
             <div>Updated every 5 min</div>
-            <div><small>Tap to realtime</small></div>
+            <div>
+              <small>Tap to realtime</small>
+            </div>
           </div>
         </section>
 
         <section className="card wide">
-          <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <div className="card-title">Recent (history)</div>
-            <div style={{fontSize:13, color:"var(--muted)">Last: {lastTs ? clockTime(lastTs) : "--:--:--"}</div>
+            <div style={{ fontSize: 13, color: "var(--muted)" }}>
+              Last: {lastTs ? clockTime(lastTs) : "--:--:--"}
+            </div>
           </div>
 
-          <div style={{display:"flex", gap:12, alignItems:"center", marginTop:8}}>
-            <div style={{flex:1}}>
-              <LineChart data={tempPoints.map((p,i)=>({t:p.t,value:p.value ?? 0}))} />
-              <div style={{fontSize:12, color:"var(--muted)", marginTop:6}}>Temperature (°{unitC ? "C" : "F"})</div>
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              alignItems: "center",
+              marginTop: 8,
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <LineChart
+                data={tempPoints.map((p) => ({ t: p.t, value: p.value ?? 0 }))}
+              />
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--muted)",
+                  marginTop: 6,
+                }}
+              >
+                Temperature (°{unitC ? "C" : "F"})
+              </div>
             </div>
-            <div style={{width:140}}>
+            <div style={{ width: 140 }}>
               <MoistureTimeline data={moisturePoints} />
-              <div style={{fontSize:12, color:"var(--muted)", marginTop:6}}>Moisture timeline</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--muted)",
+                  marginTop: 6,
+                }}
+              >
+                Moisture timeline
+              </div>
             </div>
           </div>
         </section>
 
         <section className="actions card">
-          <div style={{display:"flex", gap:8}}>
-            <button className="btn" onClick={handleConnect} disabled={connected}>Connect</button>
-            <button className="btn muted" onClick={handleDisconnect} disabled={!connected}>Disconnect</button>
-            <button className="btn outline" onClick={toggleRealtime} disabled={!connected}>{isRealtime ? "Stop Realtime" : "Realtime"}</button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn" onClick={handleConnect} disabled={connected}>
+              Connect
+            </button>
+            <button
+              className="btn muted"
+              onClick={handleDisconnect}
+              disabled={!connected}
+            >
+              Disconnect
+            </button>
+            <button
+              className="btn outline"
+              onClick={toggleRealtime}
+              disabled={!connected}
+            >
+              {isRealtime ? "Stop Realtime" : "Realtime"}
+            </button>
           </div>
 
-          <div style={{marginTop:10, fontSize:13, color:"var(--muted)"}}>
+          <div style={{ marginTop: 10, fontSize: 13, color: "var(--muted)" }}>
             Status: <strong>{status}</strong>
           </div>
 
-          <div style={{marginTop:8, fontSize:13, color:"var(--muted)"}}>
-            Leave the tab open for background notifications. Android Chrome recommended.
+          <div style={{ marginTop: 8, fontSize: 13, color: "var(--muted)" }}>
+            Leave the tab open for background notifications. Android Chrome
+            recommended.
           </div>
         </section>
       </main>
