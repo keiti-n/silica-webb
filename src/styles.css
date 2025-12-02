@@ -1,12 +1,12 @@
 body {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   padding: 20px;
   background: #f7fafc;
   color: #111827;
 }
-.container { max-width: 560px; margin: auto; }
+.container { max-width: 640px; margin: auto; }
 .controls button { padding: 10px 14px; margin-right: 8px; }
 .readings { display: flex; gap: 12px; margin-top: 16px; }
-.card { background: white; padding: 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); flex: 1; }
+.card { background: white; padding: 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); flex: 1; cursor: pointer; }
 .value { font-size: 24px; margin: 6px 0; font-weight: 600; }
 footer { margin-top: 18px; color: #6b7280; }
