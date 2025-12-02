@@ -1,12 +1,103 @@
-body {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  padding: 20px;
-  background: #f7fafc;
-  color: #111827;
+:root{
+  --bg:#f3fbf7;
+  --card:#ffffff;
+  --text:#0f1720;
+  --muted:#64748b;
+  --accent:#6ec3b4;
+  --radius:14px;
+  --shadow: 0 6px 18px rgba(15,23,32,0.06);
 }
-.container { max-width: 640px; margin: auto; }
-.controls button { padding: 10px 14px; margin-right: 8px; }
-.readings { display: flex; gap: 12px; margin-top: 16px; }
-.card { background: white; padding: 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); flex: 1; cursor: pointer; }
-.value { font-size: 24px; margin: 6px 0; font-weight: 600; }
-footer { margin-top: 18px; color: #6b7280; }
+
+[data-theme="dark"]{
+  --bg:#071719;
+  --card:#072a28;
+  --text:#e6f7f2;
+  --muted:#9fbdb3;
+  --accent:#99f2c8;
+  --shadow: 0 6px 18px rgba(0,0,0,0.6);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  padding:18px;
+}
+
+/* Topbar */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+.title{display:flex;gap:12px;align-items:center}
+.appname{font-weight:700}
+.subtitle{font-size:12px;color:var(--muted)}
+.top-controls{display:flex;gap:8px;align-items:center}
+.icon-btn{
+  border:0;
+  background:transparent;
+  font-size:16px;
+  cursor:pointer;
+  padding:6px;
+}
+.status-dot{width:10px;height:10px;border-radius:50%;margin-right:6px}
+.status-dot.on{background:#34D399}
+.status-dot.off{background:#CBD5E1}
+
+/* Grid layout responsive */
+.grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:12px;
+}
+@media(min-width:900px){
+  .grid{
+    grid-template-columns: 1fr 320px;
+    grid-auto-rows: minmax(120px, auto);
+    align-items:start;
+  }
+  .card.big{grid-column:1}
+  .card.wide{grid-column:1 / span 2}
+}
+
+/* Cards */
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+}
+.card .card-top{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.icon-droplet{font-size:32px}
+.icon-temp{font-size:22px}
+
+.card-title{font-weight:600}
+.card-sub{font-size:12px;color:var(--muted)}
+
+.reading{font-size:20px;font-weight:700;margin:8px 0}
+.reading.large{font-size:44px}
+
+.small-row{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+
+.actions .btn{padding:10px 12px;border-radius:10px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+.actions .btn.muted{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--text)}
+.actions .btn.outline{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--text)}
+
+.btn{border-radius:10px;padding:8px 12px;border:0;cursor:pointer;background:var(--accent);color:#fff}
+
+.footer{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
+
+/* small screens: stack nicely */
+@media(max-width:899px){
+  .card.big{order:1}
+  .card.wide{order:3}
+  .actions.card{order:4}
+}
