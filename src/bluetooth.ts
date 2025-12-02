@@ -1,55 +1,56 @@
 // src/bluetooth.ts
-// Web Bluetooth helper
 export const DEVICE_NAME = "XIAO-C3-BLE";
 export const SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0";
 export const CHARACTERISTIC_UUID = "12345678-1234-5678-1234-56789abcdef1";
 
-export type NotifyCallback = (payload: {
-  moisture: string;
-  temperature: string;
-  raw: string;
-}) => void;
+export type NotifyCallback = (payload: { moisture: string; temperature: string; raw: string }) => void;
+
+let deviceGlobal: BluetoothDevice | null = null;
+let charGlobal: BluetoothRemoteGATTCharacteristic | null = null;
 
 export async function requestAndConnect(onNotify: NotifyCallback) {
-  if (!("bluetooth" in navigator)) {
-    throw new Error("Web Bluetooth is not available in this browser.");
-  }
+  if (!("bluetooth" in navigator)) throw new Error("Web Bluetooth not supported in this browser.");
 
   const device = await (navigator as any).bluetooth.requestDevice({
     filters: [{ name: DEVICE_NAME }],
     optionalServices: [SERVICE_UUID],
   });
 
-  const server = await device.gatt.connect();
+  deviceGlobal = device;
+  const server = await device.gatt!.connect();
   const service = await server.getPrimaryService(SERVICE_UUID);
-  const char = await service.getCharacteristic(CHARACTERISTIC_UUID);
+  const characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+  charGlobal = characteristic;
 
-  await char.startNotifications();
-  char.addEventListener("characteristicvaluechanged", (ev: Event) => {
-    const value = (ev.target as BluetoothRemoteGATTCharacteristic).value;
-    if (!value) return;
-    const raw = new TextDecoder().decode(value);
+  await characteristic.startNotifications();
+  characteristic.addEventListener("characteristicvaluechanged", (ev: Event) => {
+    const val = (ev.target as BluetoothRemoteGATTCharacteristic).value;
+    if (!val) return;
+    const raw = new TextDecoder().decode(val);
     const [moisture, temperature] = raw.trim().split(",");
-    onNotify({
-      moisture: moisture ?? "",
-      temperature: temperature ?? "",
-      raw,
-    });
+    onNotify({ moisture: moisture ?? "", temperature: temperature ?? "", raw });
   });
 
-  // attach disconnect handler
   device.addEventListener("gattserverdisconnected", () => {
-    console.log("Device disconnected");
+    console.log("disconnected");
   });
 
-  return { device, server, service, characteristic: char };
+  return { device, server, service, characteristic };
 }
 
-export async function disconnect(device?: BluetoothDevice) {
-  if (!device) return;
+export async function writeCommand(cmd: string) {
+  if (!charGlobal) throw new Error("Not connected");
+  // write as UTF-8 string
+  const data = new TextEncoder().encode(cmd);
+  await charGlobal.writeValue(data);
+}
+
+export async function disconnect() {
   try {
-    if (device.gatt && device.gatt.connected) device.gatt.disconnect();
+    if (deviceGlobal && deviceGlobal.gatt && deviceGlobal.gatt.connected) deviceGlobal.gatt.disconnect();
   } catch (e) {
-    console.warn("Error while disconnecting:", e);
+    console.warn(e);
   }
+  deviceGlobal = null;
+  charGlobal = null;
 }
