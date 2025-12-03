@@ -133,8 +133,8 @@ export default function App() {
             <path d="M12 2C12 2 7 8 7 12a5 5 0 0010 0c0-4-5-10-5-10z" fill="currentColor"/>
           </svg>
           <div>
-            <div className="appname">Silica Monitor</div>
-            <div className="subtitle">Friendly silica humidity monitor</div>
+            <div className="appname">SilicaSense</div>
+            <div className="subtitle">Silica humidity monitor</div>
           </div>
         </div>
 
