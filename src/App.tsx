@@ -56,12 +56,15 @@ export default function App() {
 
   function pushWetNotification() {
     const body = "Your silica packet is fully saturated";
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("⚠️ Moisture Detected", { body });
-    } else {
-      if (document.visibilityState === "visible") alert("⚠️ Moisture Detected — " + body);
+
+    // Only notify if the tab is NOT visible (app is not open)
+    if (document.visibilityState === "hidden") {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("⚠️ Moisture Detected", { body });
+      }
     }
   }
+
 
   // Add reading to history (keeps last 60)
   function addReading(moisture: string, tempStr: string) {
@@ -133,8 +136,8 @@ export default function App() {
             <path d="M12 2C12 2 7 8 7 12a5 5 0 0010 0c0-4-5-10-5-10z" fill="currentColor"/>
           </svg>
           <div>
-            <div className="appname">SilicaSense</div>
-            <div className="subtitle">Silica humidity monitor</div>
+            <div className="appname">ChromaSole</div>
+            <div className="subtitle">Silica humidity and temperature monitor</div>
           </div>
         </div>
 
